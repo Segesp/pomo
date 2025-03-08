@@ -26,8 +26,30 @@
     --radius: 0.5rem;
   }
 
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 9.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 346.8 77.2% 49.8%;
+    --primary-foreground: 355.7 100% 97.3%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 346.8 77.2% 49.8%;
+  }
+
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    @apply bg-background text-foreground antialiased;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -37,11 +59,11 @@
 
 @layer components {
   .card {
-    @apply bg-white rounded-xl shadow-lg p-6 sm:p-8;
+    @apply bg-card text-card-foreground rounded-xl shadow-lg p-6 sm:p-8;
   }
 
   .input {
-    @apply w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all duration-200;
+    @apply w-full px-4 py-2 rounded-lg border border-input focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all duration-200 bg-background text-foreground;
   }
 
   .btn {
@@ -49,27 +71,27 @@
   }
 
   .btn-primary {
-    @apply bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500;
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary;
   }
 
   .btn-secondary {
-    @apply bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-gray-500;
+    @apply bg-card text-card-foreground border border-border hover:bg-muted focus:ring-secondary;
   }
 
   .nav-link {
-    @apply px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors duration-200;
+    @apply px-4 py-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-200;
   }
 
   .nav-link-active {
-    @apply text-indigo-600;
+    @apply text-primary;
   }
 
   .timer-display {
-    @apply text-6xl sm:text-8xl font-bold text-center tracking-tight text-gray-900;
+    @apply text-6xl sm:text-8xl font-bold text-center tracking-tight;
   }
 
   .timer-label {
-    @apply text-xl sm:text-2xl font-medium text-gray-600 text-center mb-8;
+    @apply text-xl sm:text-2xl font-medium text-muted-foreground text-center mb-8;
   }
 
   .timer-button {
@@ -81,7 +103,7 @@
   }
 
   .session-card {
-    @apply bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow duration-200;
+    @apply bg-card rounded-lg shadow p-6 hover:shadow-md transition-shadow duration-200;
   }
 
   .form-group {
@@ -89,15 +111,15 @@
   }
 
   .form-label {
-    @apply block text-sm font-medium text-gray-700;
+    @apply block text-sm font-medium;
   }
 
   .error-message {
-    @apply bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative;
+    @apply bg-destructive/10 border border-destructive text-destructive px-4 py-3 rounded relative;
   }
 
   .success-message {
-    @apply bg-green-50 border border-green-400 text-green-700 px-4 py-3 rounded relative;
+    @apply bg-green-50 dark:bg-green-900/10 border border-green-400 dark:border-green-700 text-green-700 dark:text-green-300 px-4 py-3 rounded relative;
   }
 }
 

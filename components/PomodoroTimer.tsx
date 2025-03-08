@@ -269,95 +269,84 @@ export default function PomodoroTimer() {
   const offset = circumference - (progress / 100) * circumference
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Temporizador Pomodoro</h2>
-        <div className="flex space-x-2">
-          <button 
-            onClick={() => setSoundEnabled(!soundEnabled)}
-            className="p-2 rounded-md hover:bg-gray-100 transition-colors"
-            title={soundEnabled ? "Desactivar sonido" : "Activar sonido"}
-          >
-            {soundEnabled ? <FiVolume2 size={20} /> : <FiVolumeX size={20} />}
-          </button>
-          <button 
-            onClick={() => setShowSettings(true)}
-            className="p-2 rounded-md hover:bg-gray-100 transition-colors"
-            title="Configuración"
-          >
-            <FiSettings size={20} />
-          </button>
-        </div>
-      </div>
-      
-      {/* Timer Circle */}
-      <div className="flex-1 flex flex-col items-center justify-center my-6">
-        <div className="relative inline-flex justify-center items-center">
-          <svg width="280" height="280" className="transform -rotate-90">
-            {/* Background circle */}
-            <circle
-              cx="140"
-              cy="140"
-              r={radius}
-              stroke="#e5e7eb"
-              strokeWidth="12"
-              fill="transparent"
+    <div className="max-w-3xl mx-auto">
+      {/* Temporizador */}
+      <div className="text-center mb-8">
+        <h2 className="timer-label">
+          {mode === 'work' ? 'Trabajando' : mode === 'break' ? 'Descanso Corto' : 'Descanso Largo'}
+        </h2>
+        
+        <div className="w-72 h-72 mx-auto relative mb-4">
+          {/* Círculo de progreso */}
+          <svg className="w-full h-full" viewBox="0 0 100 100">
+            {/* Círculo de fondo */}
+            <circle 
+              cx="50" 
+              cy="50" 
+              r="45" 
+              fill="none" 
+              stroke="hsl(var(--border))" 
+              strokeWidth="8" 
             />
-            {/* Progress circle */}
-            <circle
-              cx="140"
-              cy="140"
-              r={radius}
-              stroke={mode === 'work' ? '#ef4444' : '#3b82f6'}
-              strokeWidth="12"
-              strokeDasharray={circumference}
-              strokeDashoffset={offset}
-              fill="transparent"
-              strokeLinecap="round"
-              className="transition-all duration-1000 ease-linear"
+            
+            {/* Círculo de progreso */}
+            <circle 
+              cx="50" 
+              cy="50" 
+              r="45" 
+              fill="none" 
+              stroke="hsl(var(--primary))" 
+              strokeWidth="8" 
+              strokeLinecap="round" 
+              strokeDasharray={`${calculateProgress() * 283} 283`}
+              transform="rotate(-90 50 50)" 
+              className="timer-circle" 
             />
           </svg>
           
-          <div className="absolute flex flex-col items-center">
-            <div className="text-5xl font-bold">{formatTime(timeLeft)}</div>
-            <div className="text-lg font-semibold mt-2 capitalize">
-              {mode === 'work' ? 'Trabajando' : mode === 'break' ? 'Descanso Corto' : 'Descanso Largo'}
-            </div>
-            <div className="text-sm text-gray-500 mt-1">
-              Sesiones: {completedSessions}
-            </div>
+          {/* Temporizador */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="timer-display">{formatTime(timeLeft)}</div>
           </div>
         </div>
-      </div>
-      
-      {/* Control buttons */}
-      <div className="flex justify-center items-center space-x-6 my-6">
-        <button 
-          onClick={toggleTimer}
-          className={`px-6 py-3 rounded-full flex items-center justify-center text-white font-medium ${
-            isActive ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'
-          } transition-colors shadow-md`}
-        >
-          {isActive ? (
-            <>
-              <FiPause className="mr-2" />
-              Pausar
-            </>
-          ) : (
-            <>
-              <FiPlay className="mr-2" />
-              Iniciar
-            </>
-          )}
-        </button>
         
-        <button 
-          onClick={skipToNext}
-          className="px-6 py-3 rounded-full flex items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition-colors shadow-sm"
-        >
-          <FiSkipForward className="mr-2" />
-          Saltar
-        </button>
+        <div className="text-sm mb-6 text-muted-foreground">
+          Sesiones completadas: <span className="font-medium">{completedSessions}</span>
+          {config.sessionsBeforeLongBreak > 0 && (
+            <> de <span className="font-medium">{config.sessionsBeforeLongBreak}</span></>
+          )}
+        </div>
+        
+        {/* Controles */}
+        <div className="timer-control">
+          <button 
+            onClick={toggleTimer}
+            className="bg-primary text-primary-foreground rounded-full p-4 hover:bg-primary/90 transform transition-all duration-200 hover:scale-105 active:scale-95"
+          >
+            {isActive ? <FiPause size={24} /> : <FiPlay size={24} />}
+          </button>
+          
+          <button 
+            onClick={skipToNext}
+            className="bg-accent hover:bg-accent/90 rounded-full p-4 text-foreground transform transition-all duration-200 hover:scale-105 active:scale-95"
+          >
+            <FiSkipForward size={24} />
+          </button>
+          
+          <button 
+            onClick={() => setShowSettings(true)}
+            className="bg-accent hover:bg-accent/90 rounded-full p-4 text-foreground transform transition-all duration-200 hover:scale-105 active:scale-95"
+          >
+            <FiSettings size={24} />
+          </button>
+          
+          <button 
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            className="bg-accent hover:bg-accent/90 rounded-full p-4 text-foreground transform transition-all duration-200 hover:scale-105 active:scale-95"
+          >
+            {soundEnabled ? <FiVolume2 size={24} /> : <FiVolumeX size={24} />}
+          </button>
+        </div>
       </div>
       
       {/* Session tracking - Only show in work mode */}
