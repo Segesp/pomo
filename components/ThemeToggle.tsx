@@ -9,19 +9,21 @@ export default function ThemeToggle() {
   const isDark = state.theme === 'dark'
   
   return (
-    <button
+    <motion.button
       onClick={toggleTheme}
-      className="p-2 rounded-full transition-colors bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
+      className="p-2 rounded-full transition-colors bg-secondary hover:bg-secondary/80 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-background"
       aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+      whileTap={{ scale: 0.95 }}
+      title={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
     >
       <motion.div
         initial={false}
-        animate={{ rotate: isDark ? 0 : 180 }}
-        transition={{ duration: 0.5, type: 'spring' }}
-        className="text-red-600 dark:text-yellow-400"
+        animate={{ rotate: isDark ? 0 : 180, scale: [0.8, 1.1, 1] }}
+        transition={{ duration: 0.5, type: 'spring', bounce: 0.4 }}
+        className="text-primary"
       >
         {isDark ? <FiSun className="w-5 h-5" /> : <FiMoon className="w-5 h-5" />}
       </motion.div>
-    </button>
+    </motion.button>
   )
 } 

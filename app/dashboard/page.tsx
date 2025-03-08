@@ -15,6 +15,7 @@ import ScientificBasis from '@/components/ScientificBasis'
 import OnboardingTour from '@/components/OnboardingTour'
 import QuickHelp from '@/components/QuickHelp'
 import ThemeToggle from '@/components/ThemeToggle'
+import ThemeSettings from '@/components/ThemeSettings'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   FiClock, 
@@ -27,7 +28,9 @@ import {
   FiX,
   FiInfo,
   FiChevronRight,
-  FiChevronDown
+  FiChevronDown,
+  FiPlayCircle,
+  FiLogOut
 } from 'react-icons/fi'
 import { 
   RiAppleFill, 
@@ -287,10 +290,10 @@ function Dashboard() {
   // Mostrar pantalla de carga mientras se verifica la sesión
   if (isLoading || status === 'loading') {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white dark:bg-gray-900">
+      <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-red-600 mx-auto"></div>
-          <p className="mt-4 text-lg text-gray-700 dark:text-gray-300">Cargando tu espacio de estudio...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-lg text-muted-foreground">Cargando tu espacio de estudio...</p>
         </div>
       </div>
     )
@@ -309,51 +312,67 @@ function Dashboard() {
   const activeCategoryObject = categories.find(cat => cat.id === activeCategory);
 
   return (
-    <div className="relative min-h-screen bg-white dark:bg-gray-900">
-      {/* Barra superior */}
-      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 fixed top-0 left-0 right-0 z-10">
-        <div className="flex justify-between items-center px-4 h-16">
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Barra de navegación superior */}
+      <header className="bg-card border-b border-border">
+        <div className="container mx-auto px-4 py-2 flex justify-between items-center">
           <div className="flex items-center">
-            {/* Botón de menú para móvil */}
-            <button
-              onClick={() => setShowSidebar(!showSidebar)}
-              className="md:hidden p-2 mr-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
-              aria-label={showSidebar ? "Cerrar menú" : "Abrir menú"}
-            >
-              {showSidebar ? <FiX /> : <FiMenu />}
-            </button>
-            
-            <h1 className="text-lg font-bold text-gray-900 dark:text-white hidden sm:block">Estudio Integral</h1>
+            {windowWidth < 768 && (
+              <button
+                onClick={() => setShowSidebar(!showSidebar)}
+                className="mr-4 p-2 text-muted-foreground hover:text-foreground focus:outline-none"
+                aria-label={showSidebar ? 'Cerrar menú' : 'Abrir menú'}
+              >
+                {showSidebar ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
+              </button>
+            )}
+            <h1 className="text-xl md:text-2xl font-bold">Estudio Integral</h1>
           </div>
           
           <div className="flex items-center space-x-4">
-            <ThemeToggle />
+            {/* Opciones de tema */}
+            <div className="hidden md:flex items-center space-x-3">
+              <ThemeToggle />
+              <ThemeSettings />
+            </div>
+            
+            {/* Botón de ayuda rápida */}
             <button
               onClick={() => setShowQuickHelp(true)}
-              title="Ayuda"
-              className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
+              className="p-2 text-muted-foreground hover:text-foreground focus:outline-none"
+              aria-label="Ayuda rápida"
+              title="Ayuda rápida"
             >
               <FiHelpCircle className="w-5 h-5" />
             </button>
+            
+            {/* Botón para reiniciar el tour */}
             <button
               onClick={() => setShowTour(true)}
-              title="Tour guiado"
-              className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
+              className="p-2 text-muted-foreground hover:text-foreground focus:outline-none"
+              aria-label="Reiniciar tour guiado"
+              title="Reiniciar tour guiado"
             >
-              <FiInfo className="w-5 h-5" />
+              <FiPlayCircle className="w-5 h-5" />
             </button>
-            <span className="text-gray-400 dark:text-gray-500">|</span>
-            <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium text-gray-900 dark:text-white">
-                {session?.user?.name || 'Usuario'}
-              </span>
-              <button
-                onClick={() => signOut()}
-                className="text-red-600 dark:text-red-500 hover:text-red-700 dark:hover:text-red-400 text-sm font-medium"
-              >
-                Cerrar sesión
-              </button>
+            
+            {/* Información del usuario */}
+            <div className="flex items-center">
+              <span className="hidden md:inline text-sm mr-2">{session?.user?.name || 'Usuario'}</span>
+              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
+                {session?.user?.name ? session.user.name.charAt(0).toUpperCase() : 'U'}
+              </div>
             </div>
+            
+            {/* Botón para cerrar sesión */}
+            <button
+              onClick={() => signOut()}
+              className="p-2 text-muted-foreground hover:text-destructive focus:outline-none"
+              aria-label="Cerrar sesión"
+              title="Cerrar sesión"
+            >
+              <FiLogOut className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </header>

@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from './api/auth/[...nextauth]/options'
 import SessionProvider from '@/components/SessionProvider'
 import { AppProvider } from '@/context/AppContext'
+import ThemeProvider from '@/components/ThemeProvider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -24,9 +25,11 @@ export default async function RootLayout({
       <body className={`${inter.className} h-full`}>
         <SessionProvider session={session}>
           <AppProvider>
-            <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
-              {children}
-            </div>
+            <ThemeProvider>
+              <div className="min-h-screen bg-background text-foreground antialiased transition-colors duration-200">
+                {children}
+              </div>
+            </ThemeProvider>
           </AppProvider>
         </SessionProvider>
       </body>
