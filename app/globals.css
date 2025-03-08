@@ -1,0 +1,201 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 346.8 77.2% 49.8%;
+    --primary-foreground: 355.7 100% 97.3%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 346.8 77.2% 49.8%;
+    --radius: 0.5rem;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-xl shadow-lg p-6 sm:p-8;
+  }
+
+  .input {
+    @apply w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all duration-200;
+  }
+
+  .btn {
+    @apply px-6 py-2.5 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-gray-500;
+  }
+
+  .nav-link {
+    @apply px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors duration-200;
+  }
+
+  .nav-link-active {
+    @apply text-indigo-600;
+  }
+
+  .timer-display {
+    @apply text-6xl sm:text-8xl font-bold text-center tracking-tight text-gray-900;
+  }
+
+  .timer-label {
+    @apply text-xl sm:text-2xl font-medium text-gray-600 text-center mb-8;
+  }
+
+  .timer-button {
+    @apply w-full sm:w-auto px-8 py-3 text-lg font-medium rounded-lg transition-all duration-200;
+  }
+
+  .timer-control {
+    @apply flex flex-col sm:flex-row gap-4 justify-center items-center mt-8;
+  }
+
+  .session-card {
+    @apply bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow duration-200;
+  }
+
+  .form-group {
+    @apply space-y-2 mb-6;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium text-gray-700;
+  }
+
+  .error-message {
+    @apply bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative;
+  }
+
+  .success-message {
+    @apply bg-green-50 border border-green-400 text-green-700 px-4 py-3 rounded relative;
+  }
+}
+
+@layer utilities {
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .animate-slideIn {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  .animate-pulse-subtle {
+    animation: pulseSubtle 2s infinite;
+  }
+
+  .animate-bounce-subtle {
+    animation: bounceSubtle 1s infinite;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulseSubtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes bounceSubtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* Estilos personalizados para el temporizador */
+.timer-circle {
+  transition: stroke-dashoffset 1s linear;
+}
+
+.timer-button {
+  @apply transform transition-all duration-200 hover:scale-105 active:scale-95;
+}
+
+.tag-cloud {
+  @apply transition-all duration-300 hover:shadow-md hover:-translate-y-0.5;
+}
+
+/* Efectos de hover mejorados */
+.hover-lift {
+  @apply transition-transform duration-200 hover:-translate-y-0.5;
+}
+
+.hover-glow {
+  @apply transition-all duration-200 hover:shadow-lg hover:shadow-red-100;
+}
+
+/* Efectos de fondo */
+.bg-gradient-subtle {
+  @apply bg-gradient-to-br from-red-50 to-white;
+}
+
+.glass-effect {
+  @apply bg-white/80 backdrop-blur-sm;
+}
+
+/* Animaciones de estado */
+.loading-dots::after {
+  content: '...';
+  animation: loadingDots 1.5s infinite;
+}
+
+@keyframes loadingDots {
+  0%, 20% { content: '.'; }
+  40%, 60% { content: '..'; }
+  80%, 100% { content: '...'; }
+} 
