@@ -212,7 +212,7 @@ export default function PomodoroTimer() {
   const offset = circumference - (progress / 100) * circumference
 
   return (
-    <div className="card">
+    <div className="timer-container">
       <div className="flex flex-col items-center">
         {/* Título y estado */}
         <h2 className="timer-label">
@@ -231,18 +231,20 @@ export default function PomodoroTimer() {
               cx="50%"
               cy="50%"
               r="48%"
-              className="stroke-muted fill-none"
+              className="timer-progress-bg"
               strokeWidth="4"
+              fill="none"
             />
             {/* Círculo de progreso */}
             <circle
               cx="50%"
               cy="50%"
               r="48%"
-              className="stroke-primary fill-none transition-all duration-500"
+              className="timer-progress"
               strokeWidth="4"
               strokeDasharray={`${calculateProgress() * 3.14}, 314`}
               strokeLinecap="round"
+              fill="none"
             />
           </svg>
           
@@ -287,10 +289,10 @@ export default function PomodoroTimer() {
           {Array.from({ length: config.sessionsBeforeLongBreak }).map((_, i) => (
             <div
               key={i}
-              className={`w-3 h-3 rounded-full transition-colors duration-300 ${
+              className={`session-indicator ${
                 i < (sessionCount % config.sessionsBeforeLongBreak)
-                  ? 'bg-primary'
-                  : 'bg-muted'
+                  ? 'session-indicator-active'
+                  : 'session-indicator-inactive'
               }`}
             />
           ))}
@@ -303,7 +305,7 @@ export default function PomodoroTimer() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="mt-6 w-full"
+              className="timer-settings w-full"
             >
               <div className="space-y-4">
                 <div className="form-group">
@@ -320,7 +322,7 @@ export default function PomodoroTimer() {
                       }
                       saveConfig(newConfig)
                     }}
-                    className="input w-full"
+                    className="timer-input"
                   />
                 </div>
 
@@ -338,7 +340,7 @@ export default function PomodoroTimer() {
                       }
                       saveConfig(newConfig)
                     }}
-                    className="input w-full"
+                    className="timer-input"
                   />
                 </div>
 
@@ -356,7 +358,7 @@ export default function PomodoroTimer() {
                       }
                       saveConfig(newConfig)
                     }}
-                    className="input w-full"
+                    className="timer-input"
                   />
                 </div>
 
@@ -374,7 +376,7 @@ export default function PomodoroTimer() {
                       }
                       saveConfig(newConfig)
                     }}
-                    className="input w-full"
+                    className="timer-input"
                   />
                 </div>
               </div>
@@ -384,12 +386,12 @@ export default function PomodoroTimer() {
 
         {/* Session tracking - Only show in work mode */}
         {config.workTime === timeLeft && (
-          <div className="mt-8 border-t pt-6">
+          <div className="mt-8 border-t border-border pt-6">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">Seguimiento de sesión</h3>
+              <h3 className="text-lg font-semibold">Seguimiento de sesión</h3>
               <button 
                 onClick={() => setShowTagInput(!showTagInput)}
-                className="flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium"
+                className="flex items-center text-primary hover:text-primary/80 text-sm font-medium"
               >
                 <FiTag className="mr-1" />
                 {showTagInput ? 'Ocultar etiquetas' : 'Añadir etiquetas'}
@@ -406,11 +408,11 @@ export default function PomodoroTimer() {
                     onChange={(e) => setCurrentTag(e.target.value)}
                     onKeyPress={handleTagKeyPress}
                     placeholder="Añadir etiqueta (ej: matemáticas, historia...)"
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="tag-input flex-1 rounded-l-md"
                   />
                   <button
                     onClick={addTag}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 transition-colors"
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded-r-md hover:bg-primary/90 transition-colors"
                   >
                     Añadir
                   </button>
@@ -418,21 +420,18 @@ export default function PomodoroTimer() {
                 
                 <div className="flex flex-wrap gap-2">
                   {tags.map((tag, index) => (
-                    <span 
-                      key={index} 
-                      className="inline-flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full"
-                    >
+                    <span key={index} className="tag-item">
                       {tag}
                       <button 
                         onClick={() => removeTag(tag)}
-                        className="ml-2 text-blue-700 hover:text-blue-900"
+                        className="ml-2 hover:text-primary/80"
                       >
                         <FiX size={16} />
                       </button>
                     </span>
                   ))}
                   {tags.length === 0 && (
-                    <span className="text-sm text-gray-500">No hay etiquetas</span>
+                    <span className="text-sm text-muted-foreground">No hay etiquetas</span>
                   )}
                 </div>
               </div>
@@ -440,14 +439,14 @@ export default function PomodoroTimer() {
             
             {/* Notes section */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="form-label block mb-1">
                 Notas (opcional)
               </label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Añade notas sobre lo que estás trabajando..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 min-h-[80px]"
+                className="notes-input"
               ></textarea>
             </div>
           </div>

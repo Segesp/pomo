@@ -13,31 +13,33 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
     
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 0 84% 60%;
+    --primary-foreground: 0 85% 96%;
     
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 14% 4%;
     
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 14% 46%;
     
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 220 14% 96%;
+    --accent-foreground: 220 14% 4%;
     
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
     
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 0 84% 60%;
     
     --radius: 0.5rem;
 
-    --timer-bg: 221 90% 96%;
-    --timer-text: 221 100% 45%;
-    --timer-border: 221 83% 53%;
-    --timer-accent: 221 83% 58%;
+    --timer-bg: 0 0% 100%;
+    --timer-text: 0 84% 60%;
+    --timer-border: 0 84% 60%;
+    --timer-accent: 0 84% 60%;
+    --timer-progress: 0 84% 60%;
+    --timer-muted: 220 14% 96%;
 
     --success: 142.1 76.2% 36.3%;
     --success-foreground: 355.7 100% 97.3%;
@@ -47,38 +49,40 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 222 47% 11%;
+    --foreground: 0 0% 98%;
     
-    --card: 222.2 84% 9.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 222 47% 11%;
+    --card-foreground: 0 0% 98%;
     
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 0 0% 98%;
     
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 0 62% 55%;
+    --primary-foreground: 0 85% 96%;
     
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 222 47% 11%;
+    --secondary-foreground: 0 0% 98%;
     
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 223 47% 11%;
+    --muted-foreground: 215 20% 65%;
     
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 216 34% 17%;
+    --accent-foreground: 0 0% 98%;
     
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 98%;
     
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+    --ring: 0 62% 55%;
 
     --timer-bg: 222 47% 11%;
-    --timer-text: 217 91% 60%;
-    --timer-border: 217 91% 55%;
-    --timer-accent: 217 91% 65%;
+    --timer-text: 0 62% 55%;
+    --timer-border: 0 62% 55%;
+    --timer-accent: 0 62% 55%;
+    --timer-progress: 0 62% 55%;
+    --timer-muted: 216 34% 17%;
     
     --success: 142.1 70.6% 45.3%;
     --success-foreground: 144.9 80.4% 10%;
@@ -165,28 +169,111 @@
     @apply text-foreground font-medium;
   }
 
+  .timer-container {
+    @apply relative bg-[hsl(var(--timer-bg))] rounded-xl p-6 shadow-lg;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+
   .timer-display {
-    @apply text-5xl md:text-7xl font-bold text-center my-4;
+    @apply text-6xl md:text-7xl font-bold;
     color: hsl(var(--timer-text));
   }
 
   .timer-label {
-    @apply text-xl font-semibold text-center mb-6;
+    @apply text-2xl font-semibold;
     color: hsl(var(--timer-text));
   }
 
   .timer-button {
-    @apply rounded-full p-3 mx-2 transition-all transform hover:scale-110;
+    @apply rounded-full p-3 transition-all duration-200 hover:scale-105 active:scale-95;
     background-color: hsl(var(--timer-accent));
-    color: hsl(var(--background));
+    color: hsl(var(--timer-bg));
   }
 
-  .timer-control {
-    @apply flex justify-center items-center mt-4;
+  .timer-button:hover {
+    filter: brightness(1.1);
   }
 
-  .session-card {
-    @apply bg-card rounded-lg p-4 shadow-sm mb-3 border border-border transition-all hover:shadow-md;
+  .timer-progress-bg {
+    stroke: hsl(var(--timer-muted));
+  }
+
+  .timer-progress {
+    stroke: hsl(var(--timer-progress));
+    transition: stroke-dashoffset 0.5s ease;
+  }
+
+  .timer-settings {
+    @apply mt-6 rounded-lg border p-4 transition-all duration-200;
+    background-color: hsl(var(--background));
+    border-color: hsl(var(--border));
+  }
+
+  .timer-input {
+    @apply w-full px-3 py-2 rounded-md transition-all duration-200;
+    background-color: hsl(var(--background));
+    border: 1px solid hsl(var(--border));
+    color: hsl(var(--foreground));
+  }
+
+  .timer-input:focus {
+    @apply outline-none;
+    border-color: hsl(var(--ring));
+    box-shadow: 0 0 0 2px hsla(var(--ring), 0.2);
+  }
+
+  .session-indicator {
+    @apply w-3 h-3 rounded-full transition-all duration-300;
+  }
+
+  .session-indicator-active {
+    background-color: hsl(var(--timer-progress));
+  }
+
+  .session-indicator-inactive {
+    background-color: hsl(var(--timer-muted));
+  }
+
+  .floating-panel {
+    @apply fixed inset-0 z-50 flex items-center justify-center p-4;
+    background-color: hsla(var(--background), 0.8);
+    backdrop-filter: blur(8px);
+  }
+
+  .floating-content {
+    @apply relative rounded-lg p-6 max-w-md w-full shadow-xl;
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+  }
+
+  .tag-input {
+    @apply px-3 py-2 rounded-md transition-all duration-200;
+    background-color: hsl(var(--background));
+    border: 1px solid hsl(var(--border));
+    color: hsl(var(--foreground));
+  }
+
+  .tag-item {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm transition-all duration-200;
+    background-color: hsla(var(--primary), 0.1);
+    color: hsl(var(--primary));
+  }
+
+  .tag-item:hover {
+    background-color: hsla(var(--primary), 0.2);
+  }
+
+  .notes-input {
+    @apply w-full px-3 py-2 rounded-md transition-all duration-200 min-h-[80px] resize-y;
+    background-color: hsl(var(--background));
+    border: 1px solid hsl(var(--border));
+    color: hsl(var(--foreground));
+  }
+
+  .notes-input:focus {
+    @apply outline-none;
+    border-color: hsl(var(--ring));
+    box-shadow: 0 0 0 2px hsla(var(--ring), 0.2);
   }
 
   .form-group {
@@ -265,10 +352,6 @@
 .timer-circle {
   @apply rounded-full border-8 flex items-center justify-center transition-all duration-500;
   border-color: hsl(var(--timer-border));
-}
-
-.timer-button {
-  @apply bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary;
 }
 
 .tag-cloud {
