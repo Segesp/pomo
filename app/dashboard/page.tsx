@@ -284,13 +284,13 @@ function Dashboard() {
     });
   };
 
-  // Loading state mientras verificamos la sesión
-  if (status === 'loading') {
+  // Mostrar pantalla de carga mientras se verifica la sesión
+  if (isLoading || status === 'loading') {
     return (
-      <div className="h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-screen bg-white">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-t-red-600 border-b-red-600 border-l-gray-200 border-r-gray-200 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-lg text-gray-600">Cargando...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-red-600 mx-auto"></div>
+          <p className="mt-4 text-lg text-gray-700">Cargando tu espacio de estudio...</p>
         </div>
       </div>
     )
@@ -309,18 +309,21 @@ function Dashboard() {
   const activeCategoryObject = categories.find(cat => cat.id === activeCategory);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="relative min-h-screen bg-white dark:bg-gray-900">
       {/* Barra superior */}
-      <header className="bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-10">
-        <div className="flex items-center justify-between px-4 py-2">
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 fixed top-0 left-0 right-0 z-10">
+        <div className="flex justify-between items-center px-4 h-16">
           <div className="flex items-center">
+            {/* Botón de menú para móvil */}
             <button
               onClick={() => setShowSidebar(!showSidebar)}
-              className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md"
+              className="md:hidden p-2 mr-2 text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md"
+              aria-label={showSidebar ? "Cerrar menú" : "Abrir menú"}
             >
               {showSidebar ? <FiX /> : <FiMenu />}
             </button>
-            <h1 className="ml-2 text-xl font-bold text-gray-800">EstudioIntegral</h1>
+            
+            <h1 className="text-lg font-bold text-gray-900 dark:text-white hidden sm:block">Estudio Integral</h1>
           </div>
           
           <div className="flex items-center space-x-4">
@@ -355,118 +358,71 @@ function Dashboard() {
         </div>
       </header>
       
-      {/* Contenido principal con sidebar y área de contenido */}
-      <div className="flex pt-12 h-[calc(100vh-48px)]">
+      <div className="pt-16 flex min-h-screen">
         {/* Sidebar */}
-        <AnimatePresence>
-          {showSidebar && (
-            <motion.aside
-              initial={{ x: -240 }}
-              animate={{ x: 0 }}
-              exit={{ x: -240 }}
-              transition={{ duration: 0.2 }}
-              className="w-60 bg-white border-r border-gray-200 overflow-y-auto fixed left-0 top-12 bottom-0 sidebar"
-            >
-              <nav className="p-4 space-y-2">
-                {categories.map(category => (
-                  <div key={category.id} className="space-y-1">
-                    <button 
-                      onClick={() => toggleCategory(category.id)}
-                      className={`w-full flex items-center justify-between p-2 rounded-md transition-all ${
-                        activeCategory === category.id ? 'bg-red-50 text-red-700' : 'hover:bg-gray-100'
-                      }`}
-                    >
-                      <div className="flex items-center">
-                        <span className="mr-2">{category.icon}</span>
-                        <span className="font-medium">{category.name}</span>
-                      </div>
-                      {expandedCategories[category.id] ? (
-                        <FiChevronDown className="h-4 w-4" />
-                      ) : (
-                        <FiChevronRight className="h-4 w-4" />
-                      )}
-                    </button>
-                    
-                    {/* Pestañas dentro de cada categoría */}
-                    <AnimatePresence>
-                      {expandedCategories[category.id] && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="overflow-hidden"
-                        >
-                          <div className="pl-4 space-y-1 pt-1">
-                            {category.tabs.map(tab => (
-                              <button
-                                key={tab.id}
-                                onClick={() => handleTabChange(tab.id)}
-                                data-tour={tab.dataTour}
-                                className={`w-full flex items-center p-2 rounded-md group relative ${
-                                  activeTab === tab.id ? 'bg-red-100 text-red-700' : 'hover:bg-gray-50'
-                                }`}
-                              >
-                                <span className="mr-2">{tab.icon}</span>
-                                <span>{tab.name}</span>
-                                
-                                {/* Tooltip */}
-                                <div className="absolute left-full ml-2 px-3 py-1 bg-gray-800 text-white text-xs rounded-md whitespace-nowrap 
-                                  opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10 w-52">
-                                  {tab.tooltip}
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                ))}
-              </nav>
-            </motion.aside>
-          )}
-        </AnimatePresence>
-        
-        {/* Área de contenido principal */}
-        <main 
-          className={`bg-gray-50 flex-1 overflow-y-auto transition-all p-6 ${
-            showSidebar ? 'ml-60' : 'ml-0'
-          }`}
-        >
-          {/* Encabezado del contenido */}
-          <div className="md:flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800">
-                {activeCategoryObject ? activeCategoryObject.name : ''}
-              </h2>
-              <div className="flex items-center mt-4 space-x-1">
-                {activeCategoryObject?.tabs.map(tab => (
+        <aside className={`fixed inset-y-16 left-0 z-20 w-64 transform ${showSidebar ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300 ease-in-out bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto`}>
+          <nav className="pt-4 pb-16 h-full flex flex-col">
+            {/* Categorías */}
+            <div className="px-3 space-y-1 flex-1 overflow-y-auto">
+              {categories.map(category => (
+                <div key={category.id} className="mb-2">
                   <button
-                    key={tab.id}
-                    onClick={() => handleTabChange(tab.id)}
-                    className={`flex items-center px-4 py-2 rounded-md ${
-                      activeTab === tab.id
-                        ? 'bg-red-600 text-white'
-                        : 'bg-white text-gray-700 hover:bg-gray-100'
-                    }`}
+                    onClick={() => toggleCategory(category.id)}
+                    className={`w-full flex items-center justify-between px-4 py-2 text-left text-sm font-medium rounded-md transition-colors duration-200 ${activeCategory === category.id ? 'bg-red-500 text-white' : 'text-gray-700 dark:text-gray-200 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400'}`}
                   >
-                    <span className="mr-2">{tab.icon}</span>
-                    <span>{tab.name}</span>
+                    <div className="flex items-center">
+                      <span className="mr-2">{category.icon}</span>
+                      <span>{category.name}</span>
+                    </div>
+                    <span>
+                      {expandedCategories[category.id] ? <FiChevronDown /> : <FiChevronRight />}
+                    </span>
                   </button>
-                ))}
-              </div>
+                  
+                  {/* Pestañas de la categoría */}
+                  <AnimatePresence>
+                    {expandedCategories[category.id] && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="ml-2 mt-1 overflow-hidden"
+                      >
+                        {category.tabs.map(tab => (
+                          <button
+                            key={tab.id}
+                            onClick={() => handleTabChange(tab.id)}
+                            data-tour={tab.dataTour}
+                            className={`w-full flex items-center pl-8 pr-4 py-2 text-sm transition-colors duration-200 ${activeTab === tab.id ? 'text-red-600 dark:text-red-400 font-medium' : 'text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400'}`}
+                          >
+                            <span className="mr-2">{tab.icon}</span>
+                            <span>{tab.name}</span>
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ))}
+            </div>
+          </nav>
+        </aside>
+        
+        {/* Contenido principal */}
+        <main className={`flex-grow transition-all duration-300 ${showSidebar ? 'md:ml-64' : 'ml-0'}`}>
+          <div className="container mx-auto px-4 py-6 max-w-6xl">
+            {/* Título de la pestaña activa */}
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                {activeCategoryObject ? activeCategoryObject.name : 'Dashboard'}
+              </h2>
             </div>
             
-            {/* Botones de acción específicos (si se necesitan) */}
-            <div className="mt-4 md:mt-0">
-              {/* Aquí podrían ir botones contextuales según la pestaña activa */}
+            {/* Contenido de la pestaña activa */}
+            <div>
+              {activeTabComponent}
             </div>
-          </div>
-          
-          {/* Contenido de la pestaña activa */}
-          <div className="bg-white rounded-xl shadow-sm p-6 min-h-[calc(100vh-180px)]">
-            {activeTabComponent}
           </div>
         </main>
       </div>
