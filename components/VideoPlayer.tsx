@@ -251,7 +251,7 @@ export default function VideoPlayer() {
           youtubePlayer.current = new window.YT.Player(uniqueId, {
             videoId: currentVideo.youtubeId,
             playerVars: {
-              autoplay: 1,
+              autoplay: isAutoplayEnabled ? 1 : 0,
               controls: 1,
               modestbranding: 1,
               rel: 0,
@@ -259,7 +259,8 @@ export default function VideoPlayer() {
               enablejsapi: 1,
               widget_referrer: window.location.origin,
               host: 'https://www.youtube-nocookie.com',
-              playsinline: 1
+              playsinline: 1,
+              loop: 0
             },
             events: {
               onStateChange: (event: any) => {
@@ -280,6 +281,9 @@ export default function VideoPlayer() {
                     // Opcional: Mostrar indicador de carga
                     break
                   case YT_STATES.UNSTARTED:
+                    if (isAutoplayEnabled) {
+                      event.target.playVideo()
+                    }
                     setIsPlaying(false)
                     break
                 }
@@ -307,9 +311,12 @@ export default function VideoPlayer() {
                 setError(errorMessage)
               },
               onReady: (event: any) => {
-                // Restaurar el estado de mute
+                // Restaurar el estado de mute y autoplay
                 if (isMuted) {
                   event.target.mute()
+                }
+                if (isAutoplayEnabled) {
+                  event.target.playVideo()
                 }
               }
             }
@@ -330,13 +337,14 @@ export default function VideoPlayer() {
         cleanupYouTubePlayer()
       }
     }
-  }, [youtubeApiReady, currentVideoIndex, videos])
+  }, [youtubeApiReady, currentVideoIndex, videos, isAutoplayEnabled, isMuted])
 
   const handleVideoEnd = () => {
     if (isAutoplayEnabled) {
       if (currentVideoIndex < videos.length - 1) {
         setCurrentVideoIndex(prev => prev + 1)
       } else {
+        // Volver al primer video cuando se termina la lista
         setCurrentVideoIndex(0)
       }
     }

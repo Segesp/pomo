@@ -175,12 +175,12 @@
   }
 
   .timer-display {
-    @apply text-6xl md:text-7xl font-bold;
+    @apply text-6xl md:text-7xl font-bold text-center;
     color: hsl(var(--timer-text));
   }
 
   .timer-label {
-    @apply text-2xl font-semibold;
+    @apply text-2xl font-semibold text-center mb-8;
     color: hsl(var(--timer-text));
   }
 
@@ -195,11 +195,13 @@
   }
 
   .timer-progress-bg {
-    stroke: hsl(var(--timer-muted));
+    @apply stroke-gray-200 dark:stroke-gray-700;
+    stroke-width: 4;
   }
 
   .timer-progress {
-    stroke: hsl(var(--timer-progress));
+    @apply stroke-red-500 dark:stroke-red-600;
+    stroke-width: 4;
     transition: stroke-dashoffset 0.5s ease;
   }
 

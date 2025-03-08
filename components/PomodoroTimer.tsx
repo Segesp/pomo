@@ -154,8 +154,15 @@ export default function PomodoroTimer() {
     const total = isBreak 
       ? (sessionCount % config.sessionsBeforeLongBreak === 0 ? config.longBreakTime : config.breakTime)
       : config.workTime
-    return ((total - timeLeft) / total) * 100
+    const progress = ((total - timeLeft) / total) * 100
+    return progress
   }
+
+  // Calcular el radio y la circunferencia del círculo SVG
+  const radius = 45
+  const circumference = 2 * Math.PI * radius
+  const strokeDasharray = `${circumference} ${circumference}`
+  const strokeDashoffset = circumference - (calculateProgress() / 100) * circumference
 
   // Manejar inicio/pausa del temporizador
   const toggleTimer = () => {
@@ -205,12 +212,6 @@ export default function PomodoroTimer() {
     }
   }
 
-  // Radio y circunferencia para el SVG
-  const radius = 120
-  const circumference = 2 * Math.PI * radius
-  const progress = calculateProgress()
-  const offset = circumference - (progress / 100) * circumference
-
   return (
     <div className="timer-container">
       <div className="flex flex-col items-center">
@@ -230,7 +231,7 @@ export default function PomodoroTimer() {
             <circle
               cx="50%"
               cy="50%"
-              r="48%"
+              r={radius}
               className="timer-progress-bg"
               strokeWidth="4"
               fill="none"
@@ -239,10 +240,11 @@ export default function PomodoroTimer() {
             <circle
               cx="50%"
               cy="50%"
-              r="48%"
+              r={radius}
               className="timer-progress"
               strokeWidth="4"
-              strokeDasharray={`${calculateProgress() * 3.14}, 314`}
+              strokeDasharray={strokeDasharray}
+              strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
               fill="none"
             />
@@ -289,10 +291,10 @@ export default function PomodoroTimer() {
           {Array.from({ length: config.sessionsBeforeLongBreak }).map((_, i) => (
             <div
               key={i}
-              className={`session-indicator ${
+              className={`w-2 h-2 rounded-full transition-colors duration-300 ${
                 i < (sessionCount % config.sessionsBeforeLongBreak)
-                  ? 'session-indicator-active'
-                  : 'session-indicator-inactive'
+                  ? 'bg-red-500 dark:bg-red-600'
+                  : 'bg-gray-200 dark:bg-gray-700'
               }`}
             />
           ))}

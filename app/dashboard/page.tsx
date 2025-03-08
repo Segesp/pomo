@@ -65,7 +65,7 @@ const categories: Category[] = [
     tabs: [
       {
         id: 'pomodoro',
-        name: 'Pomodoro',
+        name: '🍅 Pomodoro',
         icon: <FiClock className="h-5 w-5" />,
         tooltip: 'Técnica de gestión del tiempo para aumentar la productividad',
         dataTour: 'pomodoro',
