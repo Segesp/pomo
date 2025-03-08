@@ -2,15 +2,16 @@ import './globals.css'
 import { Inter } from 'next/font/google'
 import { getServerSession } from 'next-auth'
 import { authOptions } from './api/auth/[...nextauth]/options'
-import SessionProvider from '@/components/SessionProvider'
+import { SessionProvider } from 'next-auth/react'
 import { AppProvider } from '@/context/AppContext'
 import ThemeProvider from '@/components/ThemeProvider'
+import { cn } from '@/lib/utils'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'Estudio Integral - Sistema de Gestión de Estudio',
-  description: 'Plataforma completa para gestionar tu estudio con técnicas científicamente probadas',
+  title: '🍅 Pomodoro App',
+  description: 'Aplicación de productividad basada en la técnica Pomodoro'
 }
 
 export default async function RootLayout({
@@ -21,8 +22,12 @@ export default async function RootLayout({
   const session = await getServerSession(authOptions)
   
   return (
-    <html lang="es" className="h-full">
-      <body className={`${inter.className} h-full`}>
+    <html lang="es" suppressHydrationWarning>
+      <head>
+        <title>🍅 Pomodoro App</title>
+        <meta name="description" content="Aplicación de productividad basada en la técnica Pomodoro" />
+      </head>
+      <body className={`${inter.className} min-h-screen bg-background font-sans antialiased`}>
         <SessionProvider session={session}>
           <AppProvider>
             <ThemeProvider>

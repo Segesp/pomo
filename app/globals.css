@@ -170,39 +170,44 @@
   }
 
   .timer-container {
-    @apply relative bg-[hsl(var(--timer-bg))] rounded-xl p-6 shadow-lg;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    @apply relative bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-xl;
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
   }
 
   .timer-display {
-    @apply text-6xl md:text-7xl font-bold text-center;
-    color: hsl(var(--timer-text));
+    @apply text-7xl md:text-8xl font-bold text-center tracking-tight;
+    background: linear-gradient(135deg, hsl(var(--timer-text)) 0%, hsl(var(--timer-text)/0.8) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .timer-label {
     @apply text-2xl font-semibold text-center mb-8;
-    color: hsl(var(--timer-text));
+    color: hsl(var(--timer-text)/0.9);
   }
 
   .timer-button {
-    @apply rounded-full p-3 transition-all duration-200 hover:scale-105 active:scale-95;
-    background-color: hsl(var(--timer-accent));
+    @apply rounded-full p-4 transition-all duration-300 hover:scale-110 active:scale-95 shadow-lg;
+    background: linear-gradient(135deg, hsl(var(--timer-accent)) 0%, hsl(var(--timer-accent)/0.9) 100%);
     color: hsl(var(--timer-bg));
   }
 
   .timer-button:hover {
     filter: brightness(1.1);
+    transform: translateY(-2px);
   }
 
   .timer-progress-bg {
-    @apply stroke-gray-200 dark:stroke-gray-700;
-    stroke-width: 4;
+    @apply stroke-gray-100 dark:stroke-gray-800;
+    stroke-width: 6;
   }
 
   .timer-progress {
     @apply stroke-red-500 dark:stroke-red-600;
-    stroke-width: 4;
+    stroke-width: 6;
+    stroke-linecap: round;
     transition: stroke-dashoffset 0.5s ease;
+    filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.3));
   }
 
   .timer-settings {
