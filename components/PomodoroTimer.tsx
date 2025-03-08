@@ -272,7 +272,7 @@ export default function PomodoroTimer() {
     <div className="max-w-3xl mx-auto">
       {/* Temporizador */}
       <div className="text-center mb-8">
-        <h2 className="timer-label">
+        <h2 className="text-xl sm:text-2xl font-medium text-gray-600 dark:text-gray-400 text-center mb-8">
           {mode === 'work' ? 'Trabajando' : mode === 'break' ? 'Descanso Corto' : 'Descanso Largo'}
         </h2>
         
@@ -285,7 +285,8 @@ export default function PomodoroTimer() {
               cy="50" 
               r="45" 
               fill="none" 
-              stroke="hsl(var(--border))" 
+              stroke="currentColor" 
+              className="text-gray-200 dark:text-gray-700"
               strokeWidth="8" 
             />
             
@@ -295,22 +296,22 @@ export default function PomodoroTimer() {
               cy="50" 
               r="45" 
               fill="none" 
-              stroke="hsl(var(--primary))" 
+              stroke="currentColor" 
               strokeWidth="8" 
               strokeLinecap="round" 
               strokeDasharray={`${calculateProgress() * 283} 283`}
               transform="rotate(-90 50 50)" 
-              className="timer-circle" 
+              className="timer-circle text-red-600 dark:text-red-500" 
             />
           </svg>
           
           {/* Temporizador */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="timer-display">{formatTime(timeLeft)}</div>
+            <div className="text-6xl sm:text-8xl font-bold text-center tracking-tight text-gray-900 dark:text-white">{formatTime(timeLeft)}</div>
           </div>
         </div>
         
-        <div className="text-sm mb-6 text-muted-foreground">
+        <div className="text-sm mb-6 text-gray-600 dark:text-gray-400">
           Sesiones completadas: <span className="font-medium">{completedSessions}</span>
           {config.sessionsBeforeLongBreak > 0 && (
             <> de <span className="font-medium">{config.sessionsBeforeLongBreak}</span></>
@@ -318,31 +319,31 @@ export default function PomodoroTimer() {
         </div>
         
         {/* Controles */}
-        <div className="timer-control">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
           <button 
             onClick={toggleTimer}
-            className="bg-primary text-primary-foreground rounded-full p-4 hover:bg-primary/90 transform transition-all duration-200 hover:scale-105 active:scale-95"
+            className="bg-red-600 dark:bg-red-600 text-white rounded-full p-4 hover:bg-red-700 dark:hover:bg-red-700 transform transition-all duration-200 hover:scale-105 active:scale-95"
           >
             {isActive ? <FiPause size={24} /> : <FiPlay size={24} />}
           </button>
           
           <button 
             onClick={skipToNext}
-            className="bg-accent hover:bg-accent/90 rounded-full p-4 text-foreground transform transition-all duration-200 hover:scale-105 active:scale-95"
+            className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-full p-4 text-gray-700 dark:text-gray-300 transform transition-all duration-200 hover:scale-105 active:scale-95"
           >
             <FiSkipForward size={24} />
           </button>
           
           <button 
             onClick={() => setShowSettings(true)}
-            className="bg-accent hover:bg-accent/90 rounded-full p-4 text-foreground transform transition-all duration-200 hover:scale-105 active:scale-95"
+            className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-full p-4 text-gray-700 dark:text-gray-300 transform transition-all duration-200 hover:scale-105 active:scale-95"
           >
             <FiSettings size={24} />
           </button>
           
           <button 
             onClick={() => setSoundEnabled(!soundEnabled)}
-            className="bg-accent hover:bg-accent/90 rounded-full p-4 text-foreground transform transition-all duration-200 hover:scale-105 active:scale-95"
+            className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-full p-4 text-gray-700 dark:text-gray-300 transform transition-all duration-200 hover:scale-105 active:scale-95"
           >
             {soundEnabled ? <FiVolume2 size={24} /> : <FiVolumeX size={24} />}
           </button>

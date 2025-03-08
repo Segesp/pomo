@@ -287,10 +287,10 @@ function Dashboard() {
   // Mostrar pantalla de carga mientras se verifica la sesión
   if (isLoading || status === 'loading') {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
+      <div className="flex items-center justify-center min-h-screen bg-white dark:bg-gray-900">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-lg text-foreground">Cargando tu espacio de estudio...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-red-600 mx-auto"></div>
+          <p className="mt-4 text-lg text-gray-700 dark:text-gray-300">Cargando tu espacio de estudio...</p>
         </div>
       </div>
     )
@@ -309,21 +309,21 @@ function Dashboard() {
   const activeCategoryObject = categories.find(cat => cat.id === activeCategory);
 
   return (
-    <div className="relative min-h-screen bg-background">
+    <div className="relative min-h-screen bg-white dark:bg-gray-900">
       {/* Barra superior */}
-      <header className="bg-card border-b border-border fixed top-0 left-0 right-0 z-10">
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 fixed top-0 left-0 right-0 z-10">
         <div className="flex justify-between items-center px-4 h-16">
           <div className="flex items-center">
             {/* Botón de menú para móvil */}
             <button
               onClick={() => setShowSidebar(!showSidebar)}
-              className="md:hidden p-2 mr-2 text-muted-foreground hover:text-primary hover:bg-accent/50 rounded-md"
+              className="md:hidden p-2 mr-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
               aria-label={showSidebar ? "Cerrar menú" : "Abrir menú"}
             >
               {showSidebar ? <FiX /> : <FiMenu />}
             </button>
             
-            <h1 className="text-lg font-bold text-foreground hidden sm:block">Estudio Integral</h1>
+            <h1 className="text-lg font-bold text-gray-900 dark:text-white hidden sm:block">Estudio Integral</h1>
           </div>
           
           <div className="flex items-center space-x-4">
@@ -331,25 +331,25 @@ function Dashboard() {
             <button
               onClick={() => setShowQuickHelp(true)}
               title="Ayuda"
-              className="p-2 text-muted-foreground hover:text-primary hover:bg-accent/50 rounded-md"
+              className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
             >
               <FiHelpCircle className="w-5 h-5" />
             </button>
             <button
               onClick={() => setShowTour(true)}
               title="Tour guiado"
-              className="p-2 text-muted-foreground hover:text-primary hover:bg-accent/50 rounded-md"
+              className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
             >
               <FiInfo className="w-5 h-5" />
             </button>
-            <span className="text-border">|</span>
+            <span className="text-gray-400 dark:text-gray-500">|</span>
             <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium text-foreground">
+              <span className="text-sm font-medium text-gray-900 dark:text-white">
                 {session?.user?.name || 'Usuario'}
               </span>
               <button
                 onClick={() => signOut()}
-                className="text-primary hover:text-primary/90 text-sm font-medium"
+                className="text-red-600 dark:text-red-500 hover:text-red-700 dark:hover:text-red-400 text-sm font-medium"
               >
                 Cerrar sesión
               </button>
@@ -360,7 +360,7 @@ function Dashboard() {
       
       <div className="pt-16 flex min-h-screen">
         {/* Sidebar */}
-        <aside className={`fixed inset-y-16 left-0 z-20 w-64 transform ${showSidebar ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300 ease-in-out bg-card border-r border-border overflow-y-auto`}>
+        <aside className={`fixed inset-y-16 left-0 z-20 w-64 transform ${showSidebar ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300 ease-in-out bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto`}>
           <nav className="pt-4 pb-16 h-full flex flex-col">
             {/* Categorías */}
             <div className="px-3 space-y-1 flex-1 overflow-y-auto">
@@ -368,7 +368,7 @@ function Dashboard() {
                 <div key={category.id} className="mb-2">
                   <button
                     onClick={() => toggleCategory(category.id)}
-                    className={`w-full flex items-center justify-between px-4 py-2 text-left text-sm font-medium rounded-md transition-colors duration-200 ${activeCategory === category.id ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-accent/50 hover:text-primary'}`}
+                    className={`w-full flex items-center justify-between px-4 py-2 text-left text-sm font-medium rounded-md transition-colors duration-200 ${activeCategory === category.id ? 'bg-red-600 text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-500'}`}
                   >
                     <div className="flex items-center">
                       <span className="mr-2">{category.icon}</span>
@@ -394,7 +394,7 @@ function Dashboard() {
                             key={tab.id}
                             onClick={() => handleTabChange(tab.id)}
                             data-tour={tab.dataTour}
-                            className={`w-full flex items-center pl-8 pr-4 py-2 text-sm transition-colors duration-200 ${activeTab === tab.id ? 'text-primary font-medium' : 'text-muted-foreground hover:text-primary'}`}
+                            className={`w-full flex items-center pl-8 pr-4 py-2 text-sm transition-colors duration-200 ${activeTab === tab.id ? 'text-red-600 dark:text-red-500 font-medium' : 'text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-500'}`}
                           >
                             <span className="mr-2">{tab.icon}</span>
                             <span>{tab.name}</span>
@@ -414,7 +414,7 @@ function Dashboard() {
           <div className="container mx-auto px-4 py-6 max-w-6xl">
             {/* Título de la pestaña activa */}
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-foreground">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                 {activeCategoryObject ? activeCategoryObject.name : 'Dashboard'}
               </h2>
             </div>
