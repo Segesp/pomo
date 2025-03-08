@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { FiPlay, FiPause, FiSkipForward, FiSettings, FiX, FiCheck, FiVolume2, FiVolumeX, FiTag } from 'react-icons/fi'
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface TimerConfig {
   workTime: number;
@@ -37,11 +38,11 @@ const loadSavedConfig = (): TimerConfig => {
 };
 
 export default function PomodoroTimer() {
-  // Estados principales
-  const [timeLeft, setTimeLeft] = useState(0)
-  const [isActive, setIsActive] = useState(false)
-  const [mode, setMode] = useState<'work' | 'break' | 'longBreak'>('work')
-  const [completedSessions, setCompletedSessions] = useState(0)
+  // Estados para el temporizador
+  const [timeLeft, setTimeLeft] = useState(25 * 60) // 25 minutos por defecto
+  const [isRunning, setIsRunning] = useState(false)
+  const [isBreak, setIsBreak] = useState(false)
+  const [sessionCount, setSessionCount] = useState(0)
   const [showSettings, setShowSettings] = useState(false)
   const [showTagInput, setShowTagInput] = useState(false)
   const [tags, setTags] = useState<string[]>([])
@@ -51,8 +52,7 @@ export default function PomodoroTimer() {
   
   // Configuración del temporizador
   const [config, setConfig] = useState<TimerConfig>(DEFAULT_CONFIG);
-  const [tempConfig, setTempConfig] = useState<TimerConfig>(DEFAULT_CONFIG);
-  
+
   // Referencias para sonidos
   const workCompleteSound = useRef<HTMLAudioElement | null>(null)
   const breakCompleteSound = useRef<HTMLAudioElement | null>(null)
@@ -61,7 +61,6 @@ export default function PomodoroTimer() {
   useEffect(() => {
     const savedConfig = loadSavedConfig();
     setConfig(savedConfig);
-    setTempConfig(savedConfig);
     setTimeLeft(savedConfig.workTime);
     
     // Inicializar sonidos
@@ -82,47 +81,37 @@ export default function PomodoroTimer() {
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null
     
-    if (isActive && timeLeft > 0) {
+    if (isRunning && timeLeft > 0) {
       interval = setInterval(() => {
-        setTimeLeft(prevTime => prevTime - 1)
+        setTimeLeft(time => time - 1)
       }, 1000)
-    } else if (isActive && timeLeft === 0) {
-      // Cuando el temporizador llega a cero
-      if (mode === 'work') {
-        // Reproducir sonido de finalización de trabajo
-        if (soundEnabled && workCompleteSound.current) {
-          workCompleteSound.current.play().catch(e => console.log('Error playing sound:', e))
-        }
+    } else if (timeLeft === 0) {
+      // Reproducir sonido de notificación
+      const audio = new Audio('/notification.mp3')
+      audio.play()
+
+      // Cambiar entre trabajo y descanso
+      if (!isBreak) {
+        const newSessionCount = sessionCount + 1
+        setSessionCount(newSessionCount)
         
-        // Incrementar sesiones completadas
-        const newCompletedSessions = completedSessions + 1
-        setCompletedSessions(newCompletedSessions)
-        
-        // Guardar la sesión completada
-        saveSession()
-        
-        // Determinar si es hora de un descanso largo o corto
-        if (newCompletedSessions % config.sessionsBeforeLongBreak === 0) {
-          setMode('longBreak')
+        if (newSessionCount % config.sessionsBeforeLongBreak === 0) {
           setTimeLeft(config.longBreakTime)
         } else {
-          setMode('break')
           setTimeLeft(config.breakTime)
         }
       } else {
-        // Finalizar descanso, volver a modo trabajo
-        if (soundEnabled && breakCompleteSound.current) {
-          breakCompleteSound.current.play().catch(e => console.log('Error playing sound:', e))
-        }
-        setMode('work')
         setTimeLeft(config.workTime)
       }
+      
+      setIsBreak(!isBreak)
+      setIsRunning(false)
     }
     
     return () => {
       if (interval) clearInterval(interval)
     }
-  }, [isActive, timeLeft, mode, completedSessions, config, soundEnabled])
+  }, [isRunning, timeLeft, isBreak, config, sessionCount])
 
   // Guardar una sesión completada
   const saveSession = async () => {
@@ -153,36 +142,24 @@ export default function PomodoroTimer() {
     }
   }
 
-  // Formatear tiempo en minutos:segundos
-  const formatTime = (seconds: number): string => {
+  // Formatear tiempo
+  const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   }
 
-  // Manejar inicio/pausa del temporizador
-  const toggleTimer = () => {
-    setIsActive(!isActive)
+  // Calcular progreso para el círculo
+  const calculateProgress = () => {
+    const total = isBreak 
+      ? (sessionCount % config.sessionsBeforeLongBreak === 0 ? config.longBreakTime : config.breakTime)
+      : config.workTime
+    return ((total - timeLeft) / total) * 100
   }
 
-  // Saltar al siguiente modo
-  const skipToNext = () => {
-    setIsActive(false)
-    
-    if (mode === 'work') {
-      // Si estamos en modo trabajo, considerar como no completado
-      if (completedSessions % config.sessionsBeforeLongBreak === config.sessionsBeforeLongBreak - 1) {
-        setMode('longBreak')
-        setTimeLeft(config.longBreakTime)
-      } else {
-        setMode('break')
-        setTimeLeft(config.breakTime)
-      }
-    } else {
-      // Si estamos en descanso, volver a modo trabajo
-      setMode('work')
-      setTimeLeft(config.workTime)
-    }
+  // Manejar inicio/pausa del temporizador
+  const toggleTimer = () => {
+    setIsRunning(!isRunning)
   }
 
   // Manejar cambios en la configuración temporal
@@ -192,39 +169,20 @@ export default function PomodoroTimer() {
     if (isNaN(numValue)) return
     
     if (field === 'sessionsBeforeLongBreak') {
-      setTempConfig({ ...tempConfig, [field]: numValue })
+      setConfig({ ...config, [field]: numValue })
     } else {
       // Convertir minutos a segundos
-      setTempConfig({ ...tempConfig, [field]: numValue * 60 })
+      setConfig({ ...config, [field]: numValue * 60 })
     }
   }
 
   // Guardar cambios de configuración
-  const saveConfig = () => {
-    setConfig(tempConfig)
-    
-    // Guardar en localStorage
-    localStorage.setItem('pomodoroConfig', JSON.stringify(tempConfig))
-    
-    // Si no está activo, actualizar el tiempo actual
-    if (!isActive) {
-      if (mode === 'work') {
-        setTimeLeft(tempConfig.workTime)
-      } else if (mode === 'break') {
-        setTimeLeft(tempConfig.breakTime)
-      } else {
-        setTimeLeft(tempConfig.longBreakTime)
-      }
-    }
-    
-    setShowSettings(false)
-  }
-
-  // Cancelar cambios de configuración
-  const cancelConfig = () => {
-    setTempConfig(config)
-    setShowSettings(false)
-  }
+  const saveConfig = useCallback((newConfig: TimerConfig) => {
+    localStorage.setItem('pomodoroConfig', JSON.stringify(newConfig))
+    setConfig(newConfig)
+    setTimeLeft(newConfig.workTime)
+    setIsRunning(false)
+  }, [])
 
   // Añadir una etiqueta
   const addTag = () => {
@@ -247,21 +205,6 @@ export default function PomodoroTimer() {
     }
   }
 
-  // Calcular progreso para el círculo
-  const calculateProgress = () => {
-    let totalTime
-    
-    if (mode === 'work') {
-      totalTime = config.workTime
-    } else if (mode === 'break') {
-      totalTime = config.breakTime
-    } else {
-      totalTime = config.longBreakTime
-    }
-    
-    return ((totalTime - timeLeft) / totalTime) * 100
-  }
-
   // Radio y circunferencia para el SVG
   const radius = 120
   const circumference = 2 * Math.PI * radius
@@ -269,245 +212,247 @@ export default function PomodoroTimer() {
   const offset = circumference - (progress / 100) * circumference
 
   return (
-    <div className="max-w-3xl mx-auto">
-      {/* Temporizador */}
-      <div className="text-center mb-8">
-        <h2 className="text-xl sm:text-2xl font-medium text-gray-600 dark:text-gray-400 text-center mb-8">
-          {mode === 'work' ? 'Trabajando' : mode === 'break' ? 'Descanso Corto' : 'Descanso Largo'}
+    <div className="card">
+      <div className="flex flex-col items-center">
+        {/* Título y estado */}
+        <h2 className="timer-label">
+          {isBreak 
+            ? (sessionCount % config.sessionsBeforeLongBreak === 0 
+              ? 'Descanso Largo' 
+              : 'Descanso Corto')
+            : 'Tiempo de Trabajo'}
         </h2>
-        
-        <div className="w-72 h-72 mx-auto relative mb-4">
-          {/* Círculo de progreso */}
-          <svg className="w-full h-full" viewBox="0 0 100 100">
+
+        {/* Círculo del temporizador */}
+        <div className="relative w-64 h-64 mb-8">
+          <svg className="w-full h-full transform -rotate-90">
             {/* Círculo de fondo */}
-            <circle 
-              cx="50" 
-              cy="50" 
-              r="45" 
-              fill="none" 
-              stroke="currentColor" 
-              className="text-gray-200 dark:text-gray-700"
-              strokeWidth="8" 
+            <circle
+              cx="50%"
+              cy="50%"
+              r="48%"
+              className="stroke-muted fill-none"
+              strokeWidth="4"
             />
-            
             {/* Círculo de progreso */}
-            <circle 
-              cx="50" 
-              cy="50" 
-              r="45" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="8" 
-              strokeLinecap="round" 
-              strokeDasharray={`${calculateProgress() * 283} 283`}
-              transform="rotate(-90 50 50)" 
-              className="timer-circle text-red-600 dark:text-red-500" 
+            <circle
+              cx="50%"
+              cy="50%"
+              r="48%"
+              className="stroke-primary fill-none transition-all duration-500"
+              strokeWidth="4"
+              strokeDasharray={`${calculateProgress() * 3.14}, 314`}
+              strokeLinecap="round"
             />
           </svg>
           
-          {/* Temporizador */}
+          {/* Tiempo restante */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-6xl sm:text-8xl font-bold text-center tracking-tight text-gray-900 dark:text-white">{formatTime(timeLeft)}</div>
+            <span className="timer-display">{formatTime(timeLeft)}</span>
           </div>
         </div>
-        
-        <div className="text-sm mb-6 text-gray-600 dark:text-gray-400">
-          Sesiones completadas: <span className="font-medium">{completedSessions}</span>
-          {config.sessionsBeforeLongBreak > 0 && (
-            <> de <span className="font-medium">{config.sessionsBeforeLongBreak}</span></>
-          )}
-        </div>
-        
+
         {/* Controles */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
-          <button 
+        <div className="flex items-center space-x-4">
+          <motion.button
+            whileTap={{ scale: 0.95 }}
             onClick={toggleTimer}
-            className="bg-red-600 dark:bg-red-600 text-white rounded-full p-4 hover:bg-red-700 dark:hover:bg-red-700 transform transition-all duration-200 hover:scale-105 active:scale-95"
+            className="timer-button"
           >
-            {isActive ? <FiPause size={24} /> : <FiPlay size={24} />}
-          </button>
-          
-          <button 
-            onClick={skipToNext}
-            className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-full p-4 text-gray-700 dark:text-gray-300 transform transition-all duration-200 hover:scale-105 active:scale-95"
+            {isRunning ? <FiPause className="w-6 h-6" /> : <FiPlay className="w-6 h-6" />}
+          </motion.button>
+
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              setTimeLeft(isBreak ? config.workTime : config.breakTime)
+              setIsRunning(false)
+            }}
+            className="timer-button"
           >
-            <FiSkipForward size={24} />
-          </button>
-          
-          <button 
-            onClick={() => setShowSettings(true)}
-            className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-full p-4 text-gray-700 dark:text-gray-300 transform transition-all duration-200 hover:scale-105 active:scale-95"
+            <FiSkipForward className="w-6 h-6" />
+          </motion.button>
+
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowSettings(!showSettings)}
+            className="timer-button"
           >
-            <FiSettings size={24} />
-          </button>
-          
-          <button 
-            onClick={() => setSoundEnabled(!soundEnabled)}
-            className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-full p-4 text-gray-700 dark:text-gray-300 transform transition-all duration-200 hover:scale-105 active:scale-95"
-          >
-            {soundEnabled ? <FiVolume2 size={24} /> : <FiVolumeX size={24} />}
-          </button>
+            <FiSettings className="w-6 h-6" />
+          </motion.button>
         </div>
-      </div>
-      
-      {/* Session tracking - Only show in work mode */}
-      {mode === 'work' && (
-        <div className="mt-8 border-t pt-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">Seguimiento de sesión</h3>
-            <button 
-              onClick={() => setShowTagInput(!showTagInput)}
-              className="flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium"
+
+        {/* Sesiones completadas */}
+        <div className="mt-6 flex items-center space-x-2">
+          {Array.from({ length: config.sessionsBeforeLongBreak }).map((_, i) => (
+            <div
+              key={i}
+              className={`w-3 h-3 rounded-full transition-colors duration-300 ${
+                i < (sessionCount % config.sessionsBeforeLongBreak)
+                  ? 'bg-primary'
+                  : 'bg-muted'
+              }`}
+            />
+          ))}
+        </div>
+
+        {/* Panel de configuración */}
+        <AnimatePresence>
+          {showSettings && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mt-6 w-full"
             >
-              <FiTag className="mr-1" />
-              {showTagInput ? 'Ocultar etiquetas' : 'Añadir etiquetas'}
-            </button>
-          </div>
-          
-          {/* Tags section */}
-          {showTagInput && (
-            <div className="mb-4">
-              <div className="flex mb-2">
-                <input
-                  type="text"
-                  value={currentTag}
-                  onChange={(e) => setCurrentTag(e.target.value)}
-                  onKeyPress={handleTagKeyPress}
-                  placeholder="Añadir etiqueta (ej: matemáticas, historia...)"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                />
-                <button
-                  onClick={addTag}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 transition-colors"
-                >
-                  Añadir
-                </button>
+              <div className="space-y-4">
+                <div className="form-group">
+                  <label className="form-label">Tiempo de trabajo (minutos)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="60"
+                    value={config.workTime / 60}
+                    onChange={(e) => {
+                      const newConfig = {
+                        ...config,
+                        workTime: parseInt(e.target.value) * 60
+                      }
+                      saveConfig(newConfig)
+                    }}
+                    className="input w-full"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Tiempo de descanso corto (minutos)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="30"
+                    value={config.breakTime / 60}
+                    onChange={(e) => {
+                      const newConfig = {
+                        ...config,
+                        breakTime: parseInt(e.target.value) * 60
+                      }
+                      saveConfig(newConfig)
+                    }}
+                    className="input w-full"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Tiempo de descanso largo (minutos)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="60"
+                    value={config.longBreakTime / 60}
+                    onChange={(e) => {
+                      const newConfig = {
+                        ...config,
+                        longBreakTime: parseInt(e.target.value) * 60
+                      }
+                      saveConfig(newConfig)
+                    }}
+                    className="input w-full"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Sesiones antes del descanso largo</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="8"
+                    value={config.sessionsBeforeLongBreak}
+                    onChange={(e) => {
+                      const newConfig = {
+                        ...config,
+                        sessionsBeforeLongBreak: parseInt(e.target.value)
+                      }
+                      saveConfig(newConfig)
+                    }}
+                    className="input w-full"
+                  />
+                </div>
               </div>
-              
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag, index) => (
-                  <span 
-                    key={index} 
-                    className="inline-flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full"
-                  >
-                    {tag}
-                    <button 
-                      onClick={() => removeTag(tag)}
-                      className="ml-2 text-blue-700 hover:text-blue-900"
-                    >
-                      <FiX size={16} />
-                    </button>
-                  </span>
-                ))}
-                {tags.length === 0 && (
-                  <span className="text-sm text-gray-500">No hay etiquetas</span>
-                )}
-              </div>
-            </div>
+            </motion.div>
           )}
-          
-          {/* Notes section */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Notas (opcional)
-            </label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Añade notas sobre lo que estás trabajando..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 min-h-[80px]"
-            ></textarea>
-          </div>
-        </div>
-      )}
-      
-      {/* Settings Modal */}
-      {showSettings && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full">
+        </AnimatePresence>
+
+        {/* Session tracking - Only show in work mode */}
+        {config.workTime === timeLeft && (
+          <div className="mt-8 border-t pt-6">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-gray-800">Configuración</h3>
-              <button onClick={cancelConfig} className="text-gray-500 hover:text-gray-700">
-                <FiX size={24} />
+              <h3 className="text-lg font-semibold text-gray-800">Seguimiento de sesión</h3>
+              <button 
+                onClick={() => setShowTagInput(!showTagInput)}
+                className="flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium"
+              >
+                <FiTag className="mr-1" />
+                {showTagInput ? 'Ocultar etiquetas' : 'Añadir etiquetas'}
               </button>
             </div>
             
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tiempo de trabajo (minutos)
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  max="60"
-                  value={tempConfig.workTime / 60}
-                  onChange={(e) => handleConfigChange('workTime', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                />
+            {/* Tags section */}
+            {showTagInput && (
+              <div className="mb-4">
+                <div className="flex mb-2">
+                  <input
+                    type="text"
+                    value={currentTag}
+                    onChange={(e) => setCurrentTag(e.target.value)}
+                    onKeyPress={handleTagKeyPress}
+                    placeholder="Añadir etiqueta (ej: matemáticas, historia...)"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                  <button
+                    onClick={addTag}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 transition-colors"
+                  >
+                    Añadir
+                  </button>
+                </div>
+                
+                <div className="flex flex-wrap gap-2">
+                  {tags.map((tag, index) => (
+                    <span 
+                      key={index} 
+                      className="inline-flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full"
+                    >
+                      {tag}
+                      <button 
+                        onClick={() => removeTag(tag)}
+                        className="ml-2 text-blue-700 hover:text-blue-900"
+                      >
+                        <FiX size={16} />
+                      </button>
+                    </span>
+                  ))}
+                  {tags.length === 0 && (
+                    <span className="text-sm text-gray-500">No hay etiquetas</span>
+                  )}
+                </div>
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tiempo de descanso corto (minutos)
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  max="30"
-                  value={tempConfig.breakTime / 60}
-                  onChange={(e) => handleConfigChange('breakTime', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tiempo de descanso largo (minutos)
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  max="60"
-                  value={tempConfig.longBreakTime / 60}
-                  onChange={(e) => handleConfigChange('longBreakTime', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Sesiones antes de un descanso largo
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={tempConfig.sessionsBeforeLongBreak}
-                  onChange={(e) => handleConfigChange('sessionsBeforeLongBreak', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                />
-              </div>
-            </div>
+            )}
             
-            <div className="flex justify-end space-x-2 mt-6">
-              <button
-                onClick={cancelConfig}
-                className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={saveConfig}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center"
-              >
-                <FiCheck className="mr-2" />
-                Guardar
-              </button>
+            {/* Notes section */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Notas (opcional)
+              </label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Añade notas sobre lo que estás trabajando..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 min-h-[80px]"
+              ></textarea>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 } 

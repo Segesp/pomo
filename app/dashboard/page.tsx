@@ -69,7 +69,14 @@ const categories: Category[] = [
         icon: <FiClock className="h-5 w-5" />,
         tooltip: 'Técnica de gestión del tiempo para aumentar la productividad',
         dataTour: 'pomodoro',
-        component: <PomodoroTimer />
+        component: <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          <div className="lg:col-span-3">
+            <PomodoroTimer />
+          </div>
+          <div className="lg:col-span-2">
+            <VideoPlayer />
+          </div>
+        </div>
       },
       {
         id: 'apple',
@@ -78,13 +85,6 @@ const categories: Category[] = [
         tooltip: 'Genera tarjetas de estudio tipo Anki con IA',
         dataTour: 'apple',
         component: <AnkiGenerator />
-      },
-      {
-        id: 'video',
-        name: 'Video Learning',
-        icon: <RiVideoLine className="h-5 w-5" />,
-        tooltip: 'Aprende con videos organizados por temas',
-        component: <VideoPlayer />
       }
     ]
   },
